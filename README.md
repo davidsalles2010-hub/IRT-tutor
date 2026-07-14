@@ -124,9 +124,12 @@ python -m scripts.simulate
 ## Deploy
 
 The repo includes `render.yaml`, so it deploys to [Render](https://render.com) as a free
-web service in a few clicks: **New → Blueprint** (or **Web Service**), point it at this
-repo, accept the defaults. The free tier sleeps when idle — expect a ~50 s cold start on
-the first visit.
+web service in a few clicks:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/davidsalles2010-hub/IRT-tutor)
+
+Or manually: **New → Web Service**, point it at this repo, accept the defaults. The free
+tier sleeps when idle — expect a ~50 s cold start on the first visit.
 
 Anything that runs a Python process works the same way:
 `uvicorn app.main:app --host 0.0.0.0 --port $PORT`.
