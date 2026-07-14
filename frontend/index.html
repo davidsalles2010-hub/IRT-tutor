@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MathLens — Adaptive Math Diagnostic</title>
+  <meta name="description" content="A 15-question adaptive diagnostic that measures true math ability and pinpoints exactly which skills to practice next." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234F46E5'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='white' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23F59E0B'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#" id="brand-link" aria-label="MathLens home">
+        <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="var(--indigo)"/>
+          <circle cx="16" cy="16" r="8.5" fill="none" stroke="#fff" stroke-width="2"/>
+          <circle cx="16" cy="16" r="3" fill="var(--amber)"/>
+        </svg>
+        <span class="brand-name">MathLens</span>
+      </a>
+      <div class="header-right">
+        <button class="btn btn-small" id="header-start" type="button">Start diagnostic</button>
+      </div>
+    </div>
+    <div class="progress-track" id="progress-track" hidden>
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ============================== LANDING ============================== -->
+    <section class="view active" id="view-landing">
+      <div class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Adaptive math diagnostic · Pre-algebra &amp; Algebra 1</p>
+          <h1>Find their true math level in&nbsp;about 15&nbsp;questions.</h1>
+          <p class="hero-sub">
+            MathLens adapts every question to the answers before it — the way a great tutor
+            probes — then maps exactly which skills are solid and which need work.
+            No hour-long test. No one-size-fits-all score.
+          </p>
+          <div class="hero-cta">
+            <button class="btn btn-primary btn-large" id="hero-start" type="button">Start the diagnostic</button>
+            <p class="cta-note">About 10 minutes · No account needed · Free research preview</p>
+          </div>
+        </div>
+        <figure class="hero-figure" aria-label="Illustration: the ability estimate narrowing as questions are answered">
+          <svg viewBox="0 0 520 340" role="img">
+            <title>Each question narrows the estimate of true ability</title>
+            <!-- confidence band -->
+            <polygon fill="var(--indigo)" opacity="0.09"
+              points="40,114 72,116 104,118 136,119 168,120 200,123 232,126 264,129.5 296,132.5 328,136 360,138.6 392,141.4 424,143.2 456,145.1 488,146 488,174 456,175.1 424,177.2 392,179.4 360,182.6 328,186 296,190.5 264,195.5 232,202 200,209 168,218 136,231 104,246 72,264 40,286"/>
+            <!-- true level -->
+            <line x1="40" y1="160" x2="488" y2="160" stroke="var(--amber)" stroke-width="2" stroke-dasharray="6 6"/>
+            <text x="488" y="150" text-anchor="end" class="fig-label fig-label-amber">true level</text>
+            <!-- estimate path -->
+            <polyline fill="none" stroke="var(--indigo)" stroke-width="1.5" opacity="0.45"
+              points="40,252 72,118 104,208 136,140 168,190 200,152 232,178 264,156 296,170 328,158 360,166 392,159 424,163 456,160 488,161"/>
+            <g fill="var(--indigo)">
+              <circle cx="40" cy="252" r="4.5" opacity="0.35"/><circle cx="72" cy="118" r="4.5" opacity="0.4"/>
+              <circle cx="104" cy="208" r="4.5" opacity="0.45"/><circle cx="136" cy="140" r="4.5" opacity="0.5"/>
+              <circle cx="168" cy="190" r="4.5" opacity="0.55"/><circle cx="200" cy="152" r="4.5" opacity="0.6"/>
+              <circle cx="232" cy="178" r="4.5" opacity="0.65"/><circle cx="264" cy="156" r="4.5" opacity="0.7"/>
+              <circle cx="296" cy="170" r="4.5" opacity="0.75"/><circle cx="328" cy="158" r="4.5" opacity="0.8"/>
+              <circle cx="360" cy="166" r="4.5" opacity="0.85"/><circle cx="392" cy="159" r="4.5" opacity="0.9"/>
+              <circle cx="424" cy="163" r="4.5" opacity="0.95"/><circle cx="456" cy="160" r="4.5"/>
+              <circle cx="488" cy="161" r="4.5"/>
+            </g>
+            <text x="40" y="320" class="fig-label">question 1</text>
+            <text x="488" y="320" text-anchor="end" class="fig-label">question 15</text>
+            <text x="40" y="96" class="fig-label fig-label-indigo">estimate ± confidence range</text>
+          </svg>
+          <figcaption class="sr-only">A chart showing ability estimates converging toward the true level as more questions are answered.</figcaption>
+        </figure>
+      </div>
+
+      <div class="section-block">
+        <h2 class="section-title">How it works</h2>
+        <div class="cards-3">
+          <div class="card">
+            <div class="card-num">1</div>
+            <h3>Answer ~15 questions</h3>
+            <p>Every answer changes what comes next. Get one right and the next is a little
+               harder; miss one and it eases off — zeroing in on the edge of their ability.</p>
+          </div>
+          <div class="card">
+            <div class="card-num">2</div>
+            <h3>We measure, not grade</h3>
+            <p>Behind the scenes, an Item Response Theory model — the same family of statistics
+               behind exams like the GRE — estimates true ability, not just percent correct.</p>
+          </div>
+          <div class="card">
+            <div class="card-num">3</div>
+            <h3>Get a skill map</h3>
+            <p>Finish with a clear report: an overall level with a confidence range, a topic-by-topic
+               map, and the specific areas where practice will pay off most.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <h2 class="section-title">Why adaptive beats a fixed quiz</h2>
+        <div class="cards-2">
+          <div class="card card-muted">
+            <h3>A fixed quiz</h3>
+            <p>Gives everyone the same 20 questions. Strong students coast through easy ones that
+               reveal nothing; struggling students face walls of problems they can't attempt.
+               The score mostly reflects which questions happened to be on the sheet.</p>
+          </div>
+          <div class="card card-accent">
+            <h3>A MathLens diagnostic</h3>
+            <p>Spends every question where it's most informative — right at the frontier of what the
+               student knows. Fifteen well-chosen questions pin down ability more precisely than a
+               fixed quiz twice as long, and the misses show exactly what to practice.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block final-cta">
+        <h2 class="section-title">Ready when you are</h2>
+        <p class="final-cta-sub">One subject for now — pre-algebra through Algebra 1 — done properly.</p>
+        <button class="btn btn-primary btn-large" id="footer-start" type="button">Start the diagnostic</button>
+      </div>
+    </section>
+
+    <!-- =============================== QUIZ =============================== -->
+    <section class="view" id="view-quiz" aria-live="polite">
+      <div class="quiz-shell">
+        <div class="quiz-meta">
+          <span class="quiz-count" id="quiz-count">Question 1</span>
+          <span class="quiz-topic" id="quiz-topic"></span>
+        </div>
+        <div class="question-stage" id="question-stage">
+          <div class="question-card" id="question-card">
+            <h2 class="question-text" id="question-text"></h2>
+            <div class="choices" id="choices" role="group" aria-label="Answer choices"></div>
+          </div>
+        </div>
+        <p class="quiz-hint">Not sure? Give it your best try — the diagnostic expects some misses.
+           <span class="quiz-hint-kbd">Tip: press <kbd>A</kbd>–<kbd>D</kbd> to answer.</span></p>
+      </div>
+    </section>
+
+    <!-- ============================ ANALYZING ============================= -->
+    <section class="view" id="view-analyzing">
+      <div class="analyzing-shell">
+        <svg class="analyzing-mark" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="var(--indigo)"/>
+          <circle cx="16" cy="16" r="8.5" fill="none" stroke="#fff" stroke-width="2"/>
+          <circle cx="16" cy="16" r="3" fill="var(--amber)"/>
+        </svg>
+        <h2>Building the report…</h2>
+        <p id="analyzing-note">Estimating ability from the full answer pattern</p>
+      </div>
+    </section>
+
+    <!-- ============================== REPORT ============================== -->
+    <section class="view" id="view-report">
+      <div class="report-shell">
+        <p class="eyebrow reveal">Diagnostic complete</p>
+        <h1 class="report-title reveal">Skill report</h1>
+
+        <div class="report-hero reveal">
+          <div class="level-block">
+            <div class="level-figure">
+              <span class="level-number" id="level-number">0.0</span>
+              <span class="level-denom">/ 10</span>
+            </div>
+            <div class="level-band" id="level-band"></div>
+            <p class="level-desc" id="level-desc"></p>
+          </div>
+          <div class="scale-block">
+            <div class="scale-labels"><span>1</span><span>Overall level</span><span>10</span></div>
+            <div class="level-scale">
+              <div class="scale-ci" id="scale-ci"></div>
+              <div class="scale-marker" id="scale-marker"></div>
+            </div>
+            <p class="scale-note" id="scale-note"></p>
+          </div>
+        </div>
+
+        <div class="report-grid">
+          <div class="report-panel reveal">
+            <h2>Skill map</h2>
+            <div class="radar-wrap"><canvas id="radar-chart" aria-label="Radar chart of topic levels" role="img"></canvas></div>
+            <p class="panel-note">Topic levels on the same 1–10 scale, estimated from this session.</p>
+          </div>
+          <div class="report-panel reveal">
+            <h2>Topic breakdown</h2>
+            <div class="topic-rows" id="topic-rows"></div>
+          </div>
+        </div>
+
+        <div class="report-panel reveal" id="focus-panel">
+          <h2>Where to focus next</h2>
+          <div id="focus-list"></div>
+        </div>
+
+        <div class="report-panel reveal">
+          <h2>Review the questions</h2>
+          <p class="panel-note" id="review-summary"></p>
+          <div id="review-list"></div>
+        </div>
+
+        <div class="disclaimer reveal" id="report-disclaimer"></div>
+
+        <div class="report-actions reveal">
+          <button class="btn btn-primary" id="retake" type="button">Retake the diagnostic</button>
+          <button class="btn btn-ghost" id="print-report" type="button">Print this report</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p><strong>MathLens</strong> is a research preview. The question bank and difficulty ratings are
+       awaiting review by math educators — results are indicative, not a formal assessment.</p>
+    <p class="footer-links"><a id="footer-github" href="#" rel="noopener" target="_blank" hidden>Source on GitHub</a></p>
+  </footer>
+
+  <div class="toast" id="toast" role="alert" hidden></div>
+
+  <script src="vendor/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
