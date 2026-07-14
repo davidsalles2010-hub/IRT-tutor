@@ -1,0 +1,669 @@
+{
+  "_meta": {
+    "version": "0.1.0",
+    "subject": "Pre-algebra & Algebra 1",
+    "needs_human_review": true,
+    "review_note": "TODO(human-review): Every question, answer, and difficulty rating in this bank was authored by an AI assistant and MUST be reviewed by a math educator before use with real students. Difficulty values (1-10) are informed guesses; replace them with calibrated Rasch estimates from pilot data before charging customers. See REVIEW.md.",
+    "difficulty_scale": "Authored on a 1 (easiest) to 10 (hardest) scale; mapped to the logit scale in code via b = (difficulty - 5.5) * 2/3.",
+    "topics": {
+      "arithmetic": "Arithmetic",
+      "fractions": "Fractions & Decimals",
+      "ratios": "Ratios & Percents",
+      "exponents": "Exponents & Roots",
+      "linear_eq": "Linear Equations",
+      "inequalities": "Inequalities",
+      "systems": "Systems & Graphs",
+      "quadratics": "Quadratics"
+    }
+  },
+  "questions": [
+    {
+      "id": "ar1",
+      "topic": "arithmetic",
+      "difficulty": 1,
+      "text": "7 + 8 = ?",
+      "choices": ["15", "14", "16", "13"],
+      "answer_index": 0,
+      "explanation": "7 + 8 = 15."
+    },
+    {
+      "id": "ar2",
+      "topic": "arithmetic",
+      "difficulty": 1,
+      "text": "12 × 3 = ?",
+      "choices": ["32", "36", "24", "39"],
+      "answer_index": 1,
+      "explanation": "12 × 3 = 36."
+    },
+    {
+      "id": "ar3",
+      "topic": "arithmetic",
+      "difficulty": 2,
+      "text": "45 ÷ 9 + 2 = ?",
+      "choices": ["9", "3", "7", "6"],
+      "answer_index": 2,
+      "explanation": "Divide first: 45 ÷ 9 = 5, then 5 + 2 = 7."
+    },
+    {
+      "id": "ar4",
+      "topic": "arithmetic",
+      "difficulty": 2,
+      "text": "100 − 47 = ?",
+      "choices": ["57", "63", "47", "53"],
+      "answer_index": 3,
+      "explanation": "100 − 47 = 53."
+    },
+    {
+      "id": "ar5",
+      "topic": "arithmetic",
+      "difficulty": 3,
+      "text": "3 + 4 × 5 = ?",
+      "choices": ["23", "35", "27", "60"],
+      "answer_index": 0,
+      "explanation": "Order of operations: multiply first (4 × 5 = 20), then add 3 to get 23."
+    },
+    {
+      "id": "ar6",
+      "topic": "arithmetic",
+      "difficulty": 3,
+      "text": "−6 + 10 = ?",
+      "choices": ["−4", "4", "16", "−16"],
+      "answer_index": 1,
+      "explanation": "Starting at −6 and moving up 10 lands on 4."
+    },
+    {
+      "id": "ar7",
+      "topic": "arithmetic",
+      "difficulty": 4,
+      "text": "(−3) × (−7) = ?",
+      "choices": ["−21", "10", "21", "−10"],
+      "answer_index": 2,
+      "explanation": "A negative times a negative is positive: (−3) × (−7) = 21."
+    },
+    {
+      "id": "ar8",
+      "topic": "arithmetic",
+      "difficulty": 4,
+      "text": "18 − 2 × (4 + 5) = ?",
+      "choices": ["144", "0", "16", "9"],
+      "answer_index": 1,
+      "explanation": "Parentheses first (4 + 5 = 9), then multiply (2 × 9 = 18), then 18 − 18 = 0."
+    },
+    {
+      "id": "ar9",
+      "topic": "arithmetic",
+      "difficulty": 5,
+      "text": "−4 − (−9) + (−2) = ?",
+      "choices": ["−15", "7", "3", "−11"],
+      "answer_index": 2,
+      "explanation": "Subtracting −9 means adding 9: −4 + 9 − 2 = 3."
+    },
+    {
+      "id": "fr1",
+      "topic": "fractions",
+      "difficulty": 1,
+      "text": "What is ½ of 10?",
+      "choices": ["5", "2", "20", "8"],
+      "answer_index": 0,
+      "explanation": "Half of 10 is 10 ÷ 2 = 5."
+    },
+    {
+      "id": "fr2",
+      "topic": "fractions",
+      "difficulty": 2,
+      "text": "¼ + ²⁄₄ = ?",
+      "choices": ["³⁄₈", "¾", "²⁄₈", "½"],
+      "answer_index": 1,
+      "explanation": "Same denominator, so add the numerators: 1 + 2 = 3, giving ¾."
+    },
+    {
+      "id": "fr3",
+      "topic": "fractions",
+      "difficulty": 3,
+      "text": "0.3 + 0.45 = ?",
+      "choices": ["0.48", "7.5", "0.75", "0.35"],
+      "answer_index": 2,
+      "explanation": "Line up the decimal points: 0.30 + 0.45 = 0.75."
+    },
+    {
+      "id": "fr4",
+      "topic": "fractions",
+      "difficulty": 3,
+      "text": "²⁄₃ + ⅙ = ?",
+      "choices": ["⅚", "³⁄₉", "½", "²⁄₃"],
+      "answer_index": 0,
+      "explanation": "Rewrite with denominator 6: ⁴⁄₆ + ⅙ = ⅚."
+    },
+    {
+      "id": "fr5",
+      "topic": "fractions",
+      "difficulty": 4,
+      "text": "¾ × ²⁄₅ = ?",
+      "choices": ["¹⁵⁄₈", "⁵⁄₉", "²⁄₃", "³⁄₁₀"],
+      "answer_index": 3,
+      "explanation": "Multiply across: (3 × 2) / (4 × 5) = ⁶⁄₂₀, which simplifies to ³⁄₁₀."
+    },
+    {
+      "id": "fr6",
+      "topic": "fractions",
+      "difficulty": 4,
+      "text": "Which fraction is the largest?",
+      "choices": ["³⁄₅", "²⁄₃", "⅝", "⁷⁄₁₂"],
+      "answer_index": 1,
+      "explanation": "As decimals: ³⁄₅ = 0.600, ²⁄₃ ≈ 0.667, ⅝ = 0.625, ⁷⁄₁₂ ≈ 0.583. The largest is ²⁄₃."
+    },
+    {
+      "id": "fr7",
+      "topic": "fractions",
+      "difficulty": 5,
+      "text": "½ ÷ ⅛ = ?",
+      "choices": ["¹⁄₁₆", "4", "¼", "8"],
+      "answer_index": 1,
+      "explanation": "Dividing by ⅛ is multiplying by 8: ½ × 8 = 4."
+    },
+    {
+      "id": "fr8",
+      "topic": "fractions",
+      "difficulty": 5,
+      "text": "2⅓ − ⅚ = ?",
+      "choices": ["1⅔", "1½", "2½", "1⅓"],
+      "answer_index": 1,
+      "explanation": "2⅓ = ¹⁴⁄₆ and ⅚ stays ⅚, so ¹⁴⁄₆ − ⅚ = ⁹⁄₆ = 1½."
+    },
+    {
+      "id": "fr9",
+      "topic": "fractions",
+      "difficulty": 6,
+      "text": "0.2 × 0.4 = ?",
+      "choices": ["0.8", "0.08", "0.06", "0.6"],
+      "answer_index": 1,
+      "explanation": "2 × 4 = 8, and two decimal places total gives 0.08."
+    },
+    {
+      "id": "rt1",
+      "topic": "ratios",
+      "difficulty": 2,
+      "text": "What is 50% of 60?",
+      "choices": ["30", "25", "35", "6"],
+      "answer_index": 0,
+      "explanation": "50% means half: 60 ÷ 2 = 30."
+    },
+    {
+      "id": "rt2",
+      "topic": "ratios",
+      "difficulty": 3,
+      "text": "What is 10% of 250?",
+      "choices": ["2.5", "10", "25", "40"],
+      "answer_index": 2,
+      "explanation": "10% means one tenth: 250 ÷ 10 = 25."
+    },
+    {
+      "id": "rt3",
+      "topic": "ratios",
+      "difficulty": 3,
+      "text": "A recipe uses 2 cups of flour for every 3 cups of milk. How much milk goes with 6 cups of flour?",
+      "choices": ["7 cups", "9 cups", "12 cups", "4 cups"],
+      "answer_index": 1,
+      "explanation": "Flour tripled (2 → 6), so milk triples too: 3 × 3 = 9 cups."
+    },
+    {
+      "id": "rt4",
+      "topic": "ratios",
+      "difficulty": 4,
+      "text": "What is 25% of 84?",
+      "choices": ["25", "21", "42", "18"],
+      "answer_index": 1,
+      "explanation": "25% is one quarter: 84 ÷ 4 = 21."
+    },
+    {
+      "id": "rt5",
+      "topic": "ratios",
+      "difficulty": 4,
+      "text": "A car travels 180 miles in 3 hours. What is its average speed?",
+      "choices": ["90 mph", "45 mph", "540 mph", "60 mph"],
+      "answer_index": 3,
+      "explanation": "Speed = distance ÷ time = 180 ÷ 3 = 60 mph."
+    },
+    {
+      "id": "rt6",
+      "topic": "ratios",
+      "difficulty": 5,
+      "text": "A $40 shirt is 20% off. What is the sale price?",
+      "choices": ["$32", "$8", "$38", "$36"],
+      "answer_index": 0,
+      "explanation": "The discount is 20% of $40 = $8, so the price is $40 − $8 = $32."
+    },
+    {
+      "id": "rt7",
+      "topic": "ratios",
+      "difficulty": 5,
+      "text": "15 is what percent of 60?",
+      "choices": ["15%", "45%", "25%", "4%"],
+      "answer_index": 2,
+      "explanation": "15 ÷ 60 = 0.25, which is 25%."
+    },
+    {
+      "id": "rt8",
+      "topic": "ratios",
+      "difficulty": 6,
+      "text": "A price rises from $80 to $100. What is the percent increase?",
+      "choices": ["20%", "25%", "80%", "12.5%"],
+      "answer_index": 1,
+      "explanation": "The increase is $20 compared to the original $80: 20 ÷ 80 = 25%."
+    },
+    {
+      "id": "rt9",
+      "topic": "ratios",
+      "difficulty": 7,
+      "text": "30% of a number is 45. What is the number?",
+      "choices": ["13.5", "135", "150", "75"],
+      "answer_index": 2,
+      "explanation": "If 0.30 × n = 45, then n = 45 ÷ 0.30 = 150."
+    },
+    {
+      "id": "ex1",
+      "topic": "exponents",
+      "difficulty": 3,
+      "text": "2³ = ?",
+      "choices": ["6", "8", "9", "5"],
+      "answer_index": 1,
+      "explanation": "2³ = 2 × 2 × 2 = 8."
+    },
+    {
+      "id": "ex2",
+      "topic": "exponents",
+      "difficulty": 4,
+      "text": "√49 = ?",
+      "choices": ["6", "24.5", "7", "9"],
+      "answer_index": 2,
+      "explanation": "7 × 7 = 49, so √49 = 7."
+    },
+    {
+      "id": "ex3",
+      "topic": "exponents",
+      "difficulty": 4,
+      "text": "5² + 5 = ?",
+      "choices": ["30", "15", "50", "35"],
+      "answer_index": 0,
+      "explanation": "5² = 25, and 25 + 5 = 30."
+    },
+    {
+      "id": "ex4",
+      "topic": "exponents",
+      "difficulty": 5,
+      "text": "10⁴ = ?",
+      "choices": ["1,000", "10,000", "40", "100,000"],
+      "answer_index": 1,
+      "explanation": "10⁴ = 10 × 10 × 10 × 10 = 10,000."
+    },
+    {
+      "id": "ex5",
+      "topic": "exponents",
+      "difficulty": 5,
+      "text": "3² × 3³ = ?",
+      "choices": ["3⁶", "3⁵", "9⁵", "9⁶"],
+      "answer_index": 1,
+      "explanation": "Same base, so add the exponents: 3²⁺³ = 3⁵."
+    },
+    {
+      "id": "ex6",
+      "topic": "exponents",
+      "difficulty": 6,
+      "text": "Simplify: (x³)²",
+      "choices": ["x⁵", "x⁹", "x⁶", "2x³"],
+      "answer_index": 2,
+      "explanation": "A power of a power multiplies the exponents: 3 × 2 = 6, giving x⁶."
+    },
+    {
+      "id": "ex7",
+      "topic": "exponents",
+      "difficulty": 7,
+      "text": "Simplify: x⁵ · x⁻²",
+      "choices": ["x⁻¹⁰", "x⁷", "x³", "1/x³"],
+      "answer_index": 2,
+      "explanation": "Same base, so add the exponents: 5 + (−2) = 3, giving x³."
+    },
+    {
+      "id": "ex8",
+      "topic": "exponents",
+      "difficulty": 7,
+      "text": "Simplify for x > 0: √(9x⁴)",
+      "choices": ["3x⁴", "3x²", "9x²", "4.5x²"],
+      "answer_index": 1,
+      "explanation": "√9 = 3 and √(x⁴) = x², so the result is 3x²."
+    },
+    {
+      "id": "ex9",
+      "topic": "exponents",
+      "difficulty": 8,
+      "text": "8^(2/3) = ?",
+      "choices": ["16", "4", "2", "6"],
+      "answer_index": 1,
+      "explanation": "Cube root first: 8^(1/3) = 2, then square it: 2² = 4."
+    },
+    {
+      "id": "ln1",
+      "topic": "linear_eq",
+      "difficulty": 3,
+      "text": "Solve for x:  x + 7 = 12",
+      "choices": ["x = 19", "x = 5", "x = 6", "x = −5"],
+      "answer_index": 1,
+      "explanation": "Subtract 7 from both sides: x = 12 − 7 = 5."
+    },
+    {
+      "id": "ln2",
+      "topic": "linear_eq",
+      "difficulty": 4,
+      "text": "Solve for x:  3x = 21",
+      "choices": ["x = 7", "x = 18", "x = 63", "x = 24"],
+      "answer_index": 0,
+      "explanation": "Divide both sides by 3: x = 21 ÷ 3 = 7."
+    },
+    {
+      "id": "ln3",
+      "topic": "linear_eq",
+      "difficulty": 4,
+      "text": "Solve for x:  x/4 = 6",
+      "choices": ["x = 1.5", "x = 2", "x = 24", "x = 10"],
+      "answer_index": 2,
+      "explanation": "Multiply both sides by 4: x = 6 × 4 = 24."
+    },
+    {
+      "id": "ln4",
+      "topic": "linear_eq",
+      "difficulty": 5,
+      "text": "Solve for x:  2x + 5 = 17",
+      "choices": ["x = 11", "x = 6", "x = 8.5", "x = 24"],
+      "answer_index": 1,
+      "explanation": "Subtract 5 (2x = 12), then divide by 2: x = 6."
+    },
+    {
+      "id": "ln5",
+      "topic": "linear_eq",
+      "difficulty": 5,
+      "text": "Solve for x:  5x − 3 = 3x + 9",
+      "choices": ["x = 3", "x = 6", "x = 12", "x = −6"],
+      "answer_index": 1,
+      "explanation": "Subtract 3x from both sides (2x − 3 = 9), add 3 (2x = 12), so x = 6."
+    },
+    {
+      "id": "ln6",
+      "topic": "linear_eq",
+      "difficulty": 6,
+      "text": "Solve for x:  4(x − 2) = 20",
+      "choices": ["x = 3", "x = 4.5", "x = 7", "x = 5.5"],
+      "answer_index": 2,
+      "explanation": "Divide both sides by 4 (x − 2 = 5), then add 2: x = 7."
+    },
+    {
+      "id": "ln7",
+      "topic": "linear_eq",
+      "difficulty": 6,
+      "text": "A taxi charges $3 plus $2 per mile. If the total fare is $15, how many miles was the ride?",
+      "choices": ["6 miles", "7.5 miles", "5 miles", "9 miles"],
+      "answer_index": 0,
+      "explanation": "2m + 3 = 15, so 2m = 12 and m = 6 miles."
+    },
+    {
+      "id": "ln8",
+      "topic": "linear_eq",
+      "difficulty": 7,
+      "text": "Solve for x:  (2x)/3 − 4 = 2",
+      "choices": ["x = 3", "x = 9", "x = 4", "x = 18"],
+      "answer_index": 1,
+      "explanation": "Add 4 to get (2x)/3 = 6, multiply by 3 (2x = 18), so x = 9."
+    },
+    {
+      "id": "ln9",
+      "topic": "linear_eq",
+      "difficulty": 8,
+      "text": "Solve for x in terms of a, b, and c (a ≠ 0):  ax + b = c",
+      "choices": ["x = (c − b)/a", "x = (c + b)/a", "x = c − b − a", "x = c/(a + b)"],
+      "answer_index": 0,
+      "explanation": "Subtract b from both sides, then divide by a: x = (c − b)/a."
+    },
+    {
+      "id": "in1",
+      "topic": "inequalities",
+      "difficulty": 4,
+      "text": "Which value of x makes  x + 3 > 7  true?",
+      "choices": ["x = 4", "x = 5", "x = 3", "x = 2"],
+      "answer_index": 1,
+      "explanation": "x must be greater than 4, and 5 + 3 = 8 > 7. (x = 4 gives exactly 7, which is not greater.)"
+    },
+    {
+      "id": "in2",
+      "topic": "inequalities",
+      "difficulty": 4,
+      "text": "|−8| = ?",
+      "choices": ["−8", "0", "8", "⅛"],
+      "answer_index": 2,
+      "explanation": "Absolute value is distance from zero, so |−8| = 8."
+    },
+    {
+      "id": "in3",
+      "topic": "inequalities",
+      "difficulty": 5,
+      "text": "Solve:  x − 4 < 2",
+      "choices": ["x < 6", "x > 6", "x < −2", "x > −2"],
+      "answer_index": 0,
+      "explanation": "Add 4 to both sides: x < 6."
+    },
+    {
+      "id": "in4",
+      "topic": "inequalities",
+      "difficulty": 5,
+      "text": "Solve:  3x ≥ 15",
+      "choices": ["x ≤ 5", "x ≥ 5", "x ≥ 45", "x ≥ 12"],
+      "answer_index": 1,
+      "explanation": "Divide both sides by 3 (positive, so the sign keeps its direction): x ≥ 5."
+    },
+    {
+      "id": "in5",
+      "topic": "inequalities",
+      "difficulty": 6,
+      "text": "Solve:  −2x < 10",
+      "choices": ["x < −5", "x > −5", "x > 5", "x < 5"],
+      "answer_index": 1,
+      "explanation": "Dividing by a negative flips the inequality: x > −5."
+    },
+    {
+      "id": "in6",
+      "topic": "inequalities",
+      "difficulty": 6,
+      "text": "What are the solutions of  |x| = 6 ?",
+      "choices": ["x = 6 only", "x = −6 only", "x = 6 or x = −6", "No solution"],
+      "answer_index": 2,
+      "explanation": "Both 6 and −6 are a distance of 6 from zero."
+    },
+    {
+      "id": "in7",
+      "topic": "inequalities",
+      "difficulty": 7,
+      "text": "Solve:  2x + 1 ≤ 4x − 5",
+      "choices": ["x ≤ 3", "x ≥ 3", "x ≥ −3", "x ≤ 2"],
+      "answer_index": 1,
+      "explanation": "Move terms: 6 ≤ 2x, so x ≥ 3."
+    },
+    {
+      "id": "in8",
+      "topic": "inequalities",
+      "difficulty": 8,
+      "text": "Solve:  |x − 3| < 5",
+      "choices": ["−2 < x < 8", "x < 8", "−8 < x < 2", "x < −2 or x > 8"],
+      "answer_index": 0,
+      "explanation": "x must be within 5 of 3: −5 < x − 3 < 5, so −2 < x < 8."
+    },
+    {
+      "id": "in9",
+      "topic": "inequalities",
+      "difficulty": 8,
+      "text": "Which describes all solutions of  |x + 2| > 4 ?",
+      "choices": ["x > 2 or x < −6", "−6 < x < 2", "x > 2 only", "x > 6 or x < −2"],
+      "answer_index": 0,
+      "explanation": "Either x + 2 > 4 (so x > 2) or x + 2 < −4 (so x < −6)."
+    },
+    {
+      "id": "sy1",
+      "topic": "systems",
+      "difficulty": 5,
+      "text": "The point (3, −2) lies in which quadrant?",
+      "choices": ["Quadrant I", "Quadrant II", "Quadrant III", "Quadrant IV"],
+      "answer_index": 3,
+      "explanation": "x is positive and y is negative, which is Quadrant IV (bottom right)."
+    },
+    {
+      "id": "sy2",
+      "topic": "systems",
+      "difficulty": 5,
+      "text": "What is the slope of the line through (0, 0) and (2, 6)?",
+      "choices": ["3", "⅓", "6", "2"],
+      "answer_index": 0,
+      "explanation": "Slope = rise/run = (6 − 0)/(2 − 0) = 3."
+    },
+    {
+      "id": "sy3",
+      "topic": "systems",
+      "difficulty": 6,
+      "text": "Which point lies on the line  y = 2x + 1 ?",
+      "choices": ["(5, 2)", "(2, 5)", "(2, 4)", "(1, 2)"],
+      "answer_index": 1,
+      "explanation": "At x = 2: y = 2(2) + 1 = 5, so (2, 5) is on the line."
+    },
+    {
+      "id": "sy4",
+      "topic": "systems",
+      "difficulty": 6,
+      "text": "What is the slope of the line  y = −3x + 7 ?",
+      "choices": ["7", "3", "−3", "−3/7"],
+      "answer_index": 2,
+      "explanation": "In y = mx + b form, the slope is the coefficient of x: −3."
+    },
+    {
+      "id": "sy5",
+      "topic": "systems",
+      "difficulty": 7,
+      "text": "What is the y-intercept of the line  y = 4x − 9 ?",
+      "choices": ["4", "−9", "9", "−4"],
+      "answer_index": 1,
+      "explanation": "At x = 0, y = −9, so the line crosses the y-axis at −9."
+    },
+    {
+      "id": "sy6",
+      "topic": "systems",
+      "difficulty": 7,
+      "text": "Solve the system:  x + y = 10  and  x − y = 4",
+      "choices": ["x = 7, y = 3", "x = 3, y = 7", "x = 6, y = 4", "x = 5, y = 5"],
+      "answer_index": 0,
+      "explanation": "Adding the equations gives 2x = 14, so x = 7 and y = 3."
+    },
+    {
+      "id": "sy7",
+      "topic": "systems",
+      "difficulty": 8,
+      "text": "Solve the system:  y = 2x  and  x + y = 9",
+      "choices": ["x = 6, y = 3", "x = 3, y = 6", "x = 4.5, y = 4.5", "x = 1, y = 8"],
+      "answer_index": 1,
+      "explanation": "Substitute y = 2x into x + y = 9: 3x = 9, so x = 3 and y = 6."
+    },
+    {
+      "id": "sy8",
+      "topic": "systems",
+      "difficulty": 8,
+      "text": "What is the slope of the line through (1, 5) and (3, 1)?",
+      "choices": ["2", "−2", "−½", "−4"],
+      "answer_index": 1,
+      "explanation": "Slope = (1 − 5)/(3 − 1) = −4/2 = −2."
+    },
+    {
+      "id": "sy9",
+      "topic": "systems",
+      "difficulty": 9,
+      "text": "For which value of k do the lines  y = 3x + 2  and  y = kx − 1  never intersect?",
+      "choices": ["k = −3", "k = 2", "k = 3", "No such k exists"],
+      "answer_index": 2,
+      "explanation": "Lines never intersect when they are parallel: same slope (k = 3) but different intercepts."
+    },
+    {
+      "id": "qd1",
+      "topic": "quadratics",
+      "difficulty": 6,
+      "text": "Simplify:  3x + 2x² − x + 4x²",
+      "choices": ["8x²", "6x² + 2x", "6x² + 4x", "2x² + 6x"],
+      "answer_index": 1,
+      "explanation": "Combine like terms: (2x² + 4x²) + (3x − x) = 6x² + 2x."
+    },
+    {
+      "id": "qd2",
+      "topic": "quadratics",
+      "difficulty": 6,
+      "text": "Expand:  (x + 3)(x + 2)",
+      "choices": ["x² + 6x + 5", "x² + 5x + 6", "x² + 6", "x² + 5x + 5"],
+      "answer_index": 1,
+      "explanation": "FOIL: x² + 2x + 3x + 6 = x² + 5x + 6."
+    },
+    {
+      "id": "qd3",
+      "topic": "quadratics",
+      "difficulty": 7,
+      "text": "Factor:  x² − 9",
+      "choices": ["(x − 3)(x + 3)", "(x − 3)²", "(x + 3)²", "(x − 9)(x + 1)"],
+      "answer_index": 0,
+      "explanation": "Difference of squares: x² − 9 = (x − 3)(x + 3)."
+    },
+    {
+      "id": "qd4",
+      "topic": "quadratics",
+      "difficulty": 7,
+      "text": "What are the solutions of  (x − 4)(x + 1) = 0 ?",
+      "choices": ["x = −4 or x = 1", "x = 4 or x = −1", "x = 4 only", "x = −4 or x = −1"],
+      "answer_index": 1,
+      "explanation": "A product is zero when either factor is zero: x = 4 or x = −1."
+    },
+    {
+      "id": "qd5",
+      "topic": "quadratics",
+      "difficulty": 8,
+      "text": "Factor:  x² + 7x + 12",
+      "choices": ["(x + 2)(x + 6)", "(x + 1)(x + 12)", "(x + 3)(x + 4)", "(x − 3)(x − 4)"],
+      "answer_index": 2,
+      "explanation": "Two numbers that multiply to 12 and add to 7 are 3 and 4."
+    },
+    {
+      "id": "qd6",
+      "topic": "quadratics",
+      "difficulty": 8,
+      "text": "Solve:  x² = 49",
+      "choices": ["x = 7 only", "x = 7 or x = −7", "x = 24.5", "x = 49 or x = −49"],
+      "answer_index": 1,
+      "explanation": "Both 7² and (−7)² equal 49, so x = ±7."
+    },
+    {
+      "id": "qd7",
+      "topic": "quadratics",
+      "difficulty": 9,
+      "text": "Solve:  x² − 5x + 6 = 0",
+      "choices": ["x = 2 or x = 3", "x = −2 or x = −3", "x = 1 or x = 6", "x = −1 or x = −6"],
+      "answer_index": 0,
+      "explanation": "Factor as (x − 2)(x − 3) = 0, so x = 2 or x = 3."
+    },
+    {
+      "id": "qd8",
+      "topic": "quadratics",
+      "difficulty": 9,
+      "text": "What is the vertex of the parabola  y = (x − 2)² + 3 ?",
+      "choices": ["(2, 3)", "(−2, 3)", "(2, −3)", "(3, 2)"],
+      "answer_index": 0,
+      "explanation": "Vertex form y = (x − h)² + k has its vertex at (h, k) = (2, 3)."
+    },
+    {
+      "id": "qd9",
+      "topic": "quadratics",
+      "difficulty": 10,
+      "text": "Use the quadratic formula to solve:  2x² + 3x − 2 = 0",
+      "choices": ["x = ½ or x = −2", "x = −½ or x = 2", "x = 1 or x = −4", "x = 2 or x = −2"],
+      "answer_index": 0,
+      "explanation": "x = (−3 ± √(9 + 16)) / 4 = (−3 ± 5)/4, giving x = ½ or x = −2."
+    }
+  ]
+}
