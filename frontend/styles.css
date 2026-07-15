@@ -412,7 +412,10 @@ kbd {
 
 .report-title { font-size: clamp(2rem, 4vw, 2.8rem); margin-bottom: 28px; }
 
-.reveal { opacity: 0; transform: translateY(18px); }
+/* Reveal animation: content is VISIBLE by default — the hidden "pre" state
+   is applied by JS only momentarily before animating. This way the report
+   can never be stuck invisible (e.g. rAF suspended in background tabs). */
+.reveal.pre { opacity: 0; transform: translateY(18px); }
 
 .reveal.shown {
   opacity: 1;

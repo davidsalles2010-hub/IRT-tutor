@@ -280,12 +280,15 @@
   }
 
   function animateCount(el, target, ms = 1300) {
-    if (reducedMotion) { el.textContent = target.toFixed(1); return; }
+    // Correctness first: the real value is set synchronously, so the number
+    // is right even if animation frames never fire (hidden tab, low power).
+    el.textContent = target.toFixed(1);
+    if (reducedMotion || document.hidden) return;
     const start = performance.now();
     const tick = (now) => {
       const t = Math.min(1, (now - start) / ms);
       const eased = 1 - Math.pow(1 - t, 3);
-      el.textContent = (target * eased).toFixed(1);
+      el.textContent = (target * (t < 1 ? eased : 1)).toFixed(1);
       if (t < 1) requestAnimationFrame(tick);
     };
     requestAnimationFrame(tick);
@@ -299,7 +302,7 @@
       // Fail-safe: never leave the student staring at a blank report.
       console.error("MathLens: report render failed —", err);
       showView("report");
-      views.report.querySelectorAll(".reveal").forEach((el) => el.classList.add("shown"));
+      views.report.querySelectorAll(".reveal").forEach((el) => { el.classList.remove("pre"); el.classList.add("shown"); });
       try {
         const a = report && report.ability;
         if (a && typeof a.level === "number") {
@@ -459,39 +462,48 @@
 
     $("report-disclaimer").textContent = report.disclaimer;
 
-    // Switch view, then run entrance animations.
+    // Switch view and render everything SYNCHRONOUSLY. Animations are a
+    // bonus layered on top — never a prerequisite for seeing the content
+    // (rAF/timers are suspended in background tabs, which previously left
+    // the report invisible with the level stuck at 0.0).
     showView("report");
-    const reveals = views.report.querySelectorAll(".reveal");
-    reveals.forEach((el) => el.classList.remove("shown"));
+    const reveals = [...views.report.querySelectorAll(".reveal")];
+    const animate = !reducedMotion && !document.hidden;
 
-    requestAnimationFrame(() => {
-      reveals.forEach((el, i) => setTimeout(() => el.classList.add("shown"), reducedMotion ? 0 : 90 * i));
+    reveals.forEach((el) => { el.classList.remove("shown", "pre"); el.style.transitionDelay = ""; });
+    if (animate) {
+      reveals.forEach((el, i) => {
+        el.classList.add("pre");
+        el.style.transitionDelay = (90 * i) + "ms";
+      });
+      void views.report.offsetHeight; // reflow so the transition runs
+    }
+    reveals.forEach((el) => el.classList.add("shown"));
+    setTimeout(() => reveals.forEach((el) => { el.classList.remove("pre"); el.style.transitionDelay = ""; }), 2000);
 
-      animateCount($("level-number"), ability.level);
+    animateCount($("level-number"), ability.level);
 
-      // Ability scale marker + CI band
-      const lo = Math.max(1, Math.min(10, ability.ci_level[0]));
-      const hi = Math.max(1, Math.min(10, ability.ci_level[1]));
-      const ci = $("scale-ci");
-      const marker = $("scale-marker");
-      marker.style.left = "0%";
-      ci.style.left = "0%";
-      ci.style.width = "0%";
-      setTimeout(() => {
-        marker.style.left = levelPercent(ability.level) + "%";
-        ci.style.left = levelPercent(lo) + "%";
-        ci.style.width = Math.max(2, levelPercent(hi) - levelPercent(lo)) + "%";
-      }, reducedMotion ? 0 : 250);
+    // Ability scale marker + CI band — final positions set synchronously;
+    // CSS transitions animate them when the tab is visible.
+    const lo = Math.max(1, Math.min(10, ability.ci_level[0]));
+    const hi = Math.max(1, Math.min(10, ability.ci_level[1]));
+    const ci = $("scale-ci");
+    const marker = $("scale-marker");
+    if (animate) {
+      marker.style.left = "0%"; ci.style.left = "0%"; ci.style.width = "0%";
+      void marker.offsetWidth;
+    }
+    marker.style.left = levelPercent(ability.level) + "%";
+    ci.style.left = levelPercent(lo) + "%";
+    ci.style.width = Math.max(2, levelPercent(hi) - levelPercent(lo)) + "%";
 
-      // Topic bars
-      setTimeout(() => {
-        rows.querySelectorAll(".topic-bar-fill").forEach((f) => {
-          f.style.width = f.dataset.width + "%";
-        });
-      }, reducedMotion ? 0 : 500);
-
-      renderRadar(assessed);
+    // Topic bars
+    rows.querySelectorAll(".topic-bar-fill").forEach((f) => {
+      if (animate) void f.offsetWidth;
+      f.style.width = f.dataset.width + "%";
     });
+
+    renderRadar(assessed);
   }
 
   function renderRadar(assessed) {
@@ -521,7 +533,7 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: reducedMotion ? false : { duration: 1100, easing: "easeOutQuart" },
+        animation: (reducedMotion || document.hidden) ? false : { duration: 1100, easing: "easeOutQuart" },
         scales: {
           r: {
             min: 0,

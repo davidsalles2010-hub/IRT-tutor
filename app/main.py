@@ -27,6 +27,19 @@ from .bank import load_bank
 
 app = FastAPI(title="MathLens API", version="0.1.0")
 
+
+@app.middleware("http")
+async def no_cache_html(request, call_next):
+    """Serve HTML with no-cache so redeploys reach browsers immediately.
+
+    Static JS/CSS are cache-busted with ?v= query params; index.html itself
+    must always be revalidated or clients can keep a stale shell around.
+    """
+    response = await call_next(request)
+    if response.headers.get("content-type", "").startswith("text/html"):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
 BANK = load_bank()
 STORE = SessionStore()
 
