@@ -30,6 +30,12 @@
   let answering = false;
   let radarChart = null;
   let analyzingTimer = null;
+  // Client-held answer history. The free hosting tier restarts the server
+  // when it idles, wiping its in-memory sessions — with this list we can ask
+  // the API to rebuild the session and resume instead of losing progress.
+  let answerHistory = [];
+
+  const log = (...args) => console.info("MathLens:", ...args);
 
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const wait = (ms) => new Promise((r) => setTimeout(r, reducedMotion ? 0 : ms));
@@ -69,11 +75,37 @@
     try {
       const data = await api("/sessions", { method: "POST" });
       sessionId = data.session_id;
+      answerHistory = [];
+      log("session started", sessionId);
       showView("quiz");
       renderQuestion(data.question, data.progress, /*first=*/true);
     } catch (err) {
       showToast(err.message);
     }
+  }
+
+  // ---- session restore (free-tier server naps wipe in-memory sessions) ----
+  const isSessionLost = (err) => /not found or expired/i.test(err && err.message || "");
+
+  async function restoreSession() {
+    let lastErr = null;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const data = await api("/sessions/restore", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ answers: answerHistory }),
+        });
+        sessionId = data.session_id;
+        log("session restored", sessionId, "after", answerHistory.length, "answers");
+        return data;
+      } catch (err) {
+        lastErr = err;
+        log("restore attempt", attempt, "failed:", err.message);
+        await wait(2500); // server may still be waking up
+      }
+    }
+    throw lastErr || new Error("Could not restore the session.");
   }
 
   function updateProgress(progress, done = false) {
@@ -132,7 +164,27 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question_id: currentQuestion.id, choice_index: index }),
       });
+      answerHistory.push({ question_id: currentQuestion.id, choice_index: index });
     } catch (err) {
+      if (isSessionLost(err)) {
+        // Server restarted mid-quiz: rebuild the session and carry on.
+        try {
+          const restored = await restoreSession();
+          showToast("Reconnected after a short server nap — picking up where you left off.");
+          if (restored.done) { await showReportFlow(); return; }
+          questionCard.classList.add("leaving");
+          await wait(260);
+          questionCard.classList.remove("leaving");
+          renderQuestion(restored.question, restored.progress);
+          return;
+        } catch (restoreErr) {
+          showToast("The server is waking up — give it a few seconds and answer again. Your progress is safe.");
+          choicesBox.querySelectorAll(".choice").forEach((b) => (b.disabled = false));
+          btn.classList.remove("selected");
+          answering = false;
+          return;
+        }
+      }
       showToast(err.message);
       choicesBox.querySelectorAll(".choice").forEach((b) => (b.disabled = false));
       btn.classList.remove("selected");
@@ -141,6 +193,7 @@
     }
 
     if (data.done) {
+      log("diagnostic complete after", answerHistory.length, "answers");
       updateProgress(data.progress, true);
       await wait(350);
       await showReportFlow();
@@ -170,6 +223,17 @@
     "Mapping strengths and gaps by topic",
   ];
 
+  async function fetchReportResilient() {
+    try {
+      return await api(`/sessions/${sessionId}/report`);
+    } catch (err) {
+      if (!isSessionLost(err) || answerHistory.length === 0) throw err;
+      log("session lost at report time — restoring");
+      await restoreSession();
+      return api(`/sessions/${sessionId}/report`);
+    }
+  }
+
   async function showReportFlow() {
     showView("analyzing");
     let i = 0;
@@ -181,7 +245,8 @@
     }, 1100);
 
     const [report] = await Promise.all([
-      api(`/sessions/${sessionId}/report`).catch((err) => {
+      fetchReportResilient().catch((err) => {
+        log("report fetch failed:", err.message);
         showToast(err.message);
         return null;
       }),
@@ -189,7 +254,23 @@
     ]);
 
     clearInterval(analyzingTimer);
-    if (!report) { showView("landing"); return; }
+    if (!report) {
+      // Never strand the student on a blank screen: explain and offer retry.
+      $("analyzing-note").textContent = "";
+      const shell = document.querySelector(".analyzing-shell");
+      shell.querySelector("h2").textContent = "Couldn't load the report";
+      const p = document.createElement("p");
+      p.textContent = "The server may have been napping (free hosting). Your answers are safe on this page.";
+      const retry = document.createElement("button");
+      retry.className = "btn btn-primary";
+      retry.type = "button";
+      retry.style.marginTop = "14px";
+      retry.textContent = "Try loading the report again";
+      retry.addEventListener("click", () => { retry.remove(); p.remove(); shell.querySelector("h2").textContent = "Building the report…"; showReportFlow(); });
+      shell.append(p, retry);
+      return;
+    }
+    log("report received:", report.n_questions, "questions, level", report.ability && report.ability.level);
     renderReport(report);
   }
 
@@ -211,7 +292,31 @@
   }
 
   function renderReport(report) {
+    try {
+      renderReportInner(report);
+      log("report rendered in full");
+    } catch (err) {
+      // Fail-safe: never leave the student staring at a blank report.
+      console.error("MathLens: report render failed —", err);
+      showView("report");
+      views.report.querySelectorAll(".reveal").forEach((el) => el.classList.add("shown"));
+      try {
+        const a = report && report.ability;
+        if (a && typeof a.level === "number") {
+          $("level-number").textContent = a.level.toFixed(1);
+          $("level-band").textContent = a.band || "";
+          $("level-desc").textContent = a.band_description || "";
+        }
+      } catch (_) { /* keep whatever rendered */ }
+      showToast("Part of the report failed to display. Core results are shown — please retake if anything looks off.");
+    }
+  }
+
+  function renderReportInner(report) {
     const ability = report.ability;
+    report.topics = report.topics || [];
+    report.review = report.review || [];
+    ability.ci_level = ability.ci_level || [1, 10];
 
     // Hero numbers
     $("level-band").textContent = ability.band;
@@ -238,7 +343,7 @@
 
       const right = document.createElement("span");
       right.className = "topic-detail";
-      right.textContent = t.asked > 0 ? `${t.correct}/${t.asked} · level ${t.level.toFixed(1)} ` : "";
+      right.textContent = t.asked > 0 && t.level != null ? `${t.correct}/${t.asked} · level ${t.level.toFixed(1)} ` : "";
 
       const badge = document.createElement("span");
       badge.className = `badge ${t.verdict}`;
@@ -248,7 +353,7 @@
       top.append(name, right);
       row.appendChild(top);
 
-      if (t.asked > 0) {
+      if (t.asked > 0 && t.level != null) {
         const bar = document.createElement("div");
         bar.className = "topic-bar";
         const fill = document.createElement("div");

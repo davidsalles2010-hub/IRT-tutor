@@ -38,6 +38,15 @@ class AnswerBody(BaseModel):
     choice_index: int = Field(ge=0, le=7)
 
 
+class RestoreAnswer(BaseModel):
+    question_id: str
+    choice_index: int = Field(ge=0, le=7)
+
+
+class RestoreBody(BaseModel):
+    answers: list[RestoreAnswer] = Field(max_length=25)
+
+
 def _question_payload(session: Session) -> dict[str, Any]:
     q = session.current_question
     assert q is not None
@@ -77,6 +86,32 @@ def create_session() -> dict[str, Any]:
     session.select_next()
     return {
         "session_id": session.id,
+        "question": _question_payload(session),
+        "progress": _progress_payload(session),
+    }
+
+
+@app.post("/api/sessions/restore", status_code=201)
+def restore_session(body: RestoreBody) -> dict[str, Any]:
+    """Rebuild a session from the client-held answer history.
+
+    The free hosting tier restarts the server process when it idles, which
+    wipes the in-memory session store mid-diagnostic. The frontend keeps its
+    own (question_id, choice_index) history and calls this to resume without
+    losing the student's progress. Correctness is recomputed server-side.
+    """
+    try:
+        session = adaptive.rebuild_session(BANK, [(a.question_id, a.choice_index) for a in body.answers])
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    STORE.register(session)
+
+    if session.is_done():
+        return {"session_id": session.id, "done": True, "progress": _progress_payload(session)}
+    session.select_next()
+    return {
+        "session_id": session.id,
+        "done": False,
         "question": _question_payload(session),
         "progress": _progress_payload(session),
     }

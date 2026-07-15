@@ -115,6 +115,31 @@ class Session:
         return correct
 
 
+def rebuild_session(bank: QuestionBank, answers: list[tuple[str, int]]) -> Session:
+    """Rebuild a session by replaying a client-held answer history.
+
+    The free hosting tier restarts the process when it sleeps, wiping the
+    in-memory session store. The client keeps its own list of
+    (question_id, choice_index) and can ask us to reconstruct the session.
+    Correctness is recomputed here from the bank — the client never gets to
+    assert what was right or wrong.
+    """
+    if len(answers) > MAX_QUESTIONS:
+        raise ValueError("Too many answers")
+    session = Session(bank=bank)
+    seen: set[str] = set()
+    for question_id, choice_index in answers:
+        if question_id in seen:
+            raise ValueError(f"Duplicate question {question_id!r}")
+        if question_id not in session.bank.questions:
+            raise ValueError(f"Unknown question {question_id!r}")
+        seen.add(question_id)
+        # Replay exactly what was asked (bypasses the selector on purpose).
+        session.current_question = session.bank.get(question_id)
+        session.record_answer(question_id, choice_index)
+    return session
+
+
 class SessionStore:
     """In-memory session store.
 
@@ -131,6 +156,12 @@ class SessionStore:
     def create(self, bank: QuestionBank) -> Session:
         self._evict()
         session = Session(bank=bank)
+        self._sessions[session.id] = session
+        return session
+
+    def register(self, session: Session) -> Session:
+        """Store an externally-built (restored) session."""
+        self._evict()
         self._sessions[session.id] = session
         return session
 
