@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MathLens — Adaptive Math Diagnostic</title>
   <meta name="description" content="A 15-question adaptive diagnostic that measures true math ability and pinpoints exactly which skills to practice next." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%234F46E5'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='white' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23F59E0B'/%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231E5C41'/%3E%3Ccircle cx='16' cy='16' r='8.5' fill='none' stroke='white' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3' fill='%23C4622D'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;1,9..144,600;1,9..144,700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
 
@@ -17,15 +17,35 @@
     <div class="header-inner">
       <a class="brand" href="#" id="brand-link" aria-label="MathLens home">
         <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <rect width="32" height="32" rx="8" fill="var(--indigo)"/>
+          <rect width="32" height="32" rx="8" fill="var(--pine)"/>
           <circle cx="16" cy="16" r="8.5" fill="none" stroke="#fff" stroke-width="2"/>
-          <circle cx="16" cy="16" r="3" fill="var(--amber)"/>
+          <circle cx="16" cy="16" r="3" fill="var(--clay)"/>
         </svg>
         <span class="brand-name">MathLens</span>
       </a>
-      <div class="header-right">
+      <div class="header-right" id="header-right">
+        <button class="btn btn-ghost btn-small" id="header-login" type="button">Log in</button>
         <button class="btn btn-small" id="header-start" type="button">Start diagnostic</button>
+        <div class="account-wrap" id="account-wrap" hidden>
+          <button class="account-chip" id="account-chip" type="button" aria-haspopup="menu" aria-expanded="false">
+            <span class="avatar-dot" id="avatar-dot">?</span>
+            <span class="chip-name" id="chip-name"></span>
+          </button>
+          <div class="menu-pop" id="account-menu" role="menu" hidden>
+            <div class="menu-head">
+              <div class="menu-name" id="menu-name"></div>
+              <div class="menu-email" id="menu-email"></div>
+              <span class="menu-role" id="menu-role"></span>
+            </div>
+            <button class="menu-item" id="menu-retake" type="button">Take the diagnostic</button>
+            <button class="menu-item" id="menu-logout" type="button">Log out</button>
+          </div>
+        </div>
       </div>
+    </div>
+    <div class="verify-banner" id="verify-banner" hidden>
+      Please verify your email — check your inbox.
+      <button class="link-btn" id="resend-verify" type="button">Resend</button>
     </div>
     <div class="progress-track" id="progress-track" hidden>
       <div class="progress-fill" id="progress-fill"></div>
@@ -39,7 +59,7 @@
       <div class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Adaptive math diagnostic · Pre-algebra &amp; Algebra 1</p>
-          <h1>Find their true math level in&nbsp;about 15&nbsp;questions.</h1>
+          <h1>Find their <em>true</em> math level in&nbsp;about 15&nbsp;questions.</h1>
           <p class="hero-sub">
             MathLens adapts every question to the answers before it — the way a great tutor
             probes — then maps exactly which skills are solid and which need work.
@@ -53,16 +73,13 @@
         <figure class="hero-figure" aria-label="Illustration: the ability estimate narrowing as questions are answered">
           <svg viewBox="0 0 520 340" role="img">
             <title>Each question narrows the estimate of true ability</title>
-            <!-- confidence band -->
-            <polygon fill="var(--indigo)" opacity="0.09"
+            <polygon fill="var(--pine)" opacity="0.09"
               points="40,114 72,116 104,118 136,119 168,120 200,123 232,126 264,129.5 296,132.5 328,136 360,138.6 392,141.4 424,143.2 456,145.1 488,146 488,174 456,175.1 424,177.2 392,179.4 360,182.6 328,186 296,190.5 264,195.5 232,202 200,209 168,218 136,231 104,246 72,264 40,286"/>
-            <!-- true level -->
-            <line x1="40" y1="160" x2="488" y2="160" stroke="var(--amber)" stroke-width="2" stroke-dasharray="6 6"/>
+            <line x1="40" y1="160" x2="488" y2="160" stroke="var(--clay)" stroke-width="2" stroke-dasharray="6 6"/>
             <text x="488" y="150" text-anchor="end" class="fig-label fig-label-amber">true level</text>
-            <!-- estimate path -->
-            <polyline fill="none" stroke="var(--indigo)" stroke-width="1.5" opacity="0.45"
+            <polyline fill="none" stroke="var(--pine)" stroke-width="1.5" opacity="0.45"
               points="40,252 72,118 104,208 136,140 168,190 200,152 232,178 264,156 296,170 328,158 360,166 392,159 424,163 456,160 488,161"/>
-            <g fill="var(--indigo)">
+            <g fill="var(--pine)">
               <circle cx="40" cy="252" r="4.5" opacity="0.35"/><circle cx="72" cy="118" r="4.5" opacity="0.4"/>
               <circle cx="104" cy="208" r="4.5" opacity="0.45"/><circle cx="136" cy="140" r="4.5" opacity="0.5"/>
               <circle cx="168" cy="190" r="4.5" opacity="0.55"/><circle cx="200" cy="152" r="4.5" opacity="0.6"/>
@@ -81,21 +98,21 @@
       </div>
 
       <div class="section-block">
-        <h2 class="section-title">How it works</h2>
+        <h2 class="section-title rise">How it works</h2>
         <div class="cards-3">
-          <div class="card">
+          <div class="card rise">
             <div class="card-num">1</div>
             <h3>Answer ~15 questions</h3>
             <p>Every answer changes what comes next. Get one right and the next is a little
                harder; miss one and it eases off — zeroing in on the edge of their ability.</p>
           </div>
-          <div class="card">
+          <div class="card rise">
             <div class="card-num">2</div>
             <h3>We measure, not grade</h3>
             <p>Behind the scenes, an Item Response Theory model — the same family of statistics
                behind exams like the GRE — estimates true ability, not just percent correct.</p>
           </div>
-          <div class="card">
+          <div class="card rise">
             <div class="card-num">3</div>
             <h3>Get a skill map</h3>
             <p>Finish with a clear report: an overall level with a confidence range, a topic-by-topic
@@ -105,15 +122,15 @@
       </div>
 
       <div class="section-block">
-        <h2 class="section-title">Why adaptive beats a fixed quiz</h2>
+        <h2 class="section-title rise">Why adaptive beats a fixed quiz</h2>
         <div class="cards-2">
-          <div class="card card-muted">
+          <div class="card card-muted rise">
             <h3>A fixed quiz</h3>
             <p>Gives everyone the same 20 questions. Strong students coast through easy ones that
                reveal nothing; struggling students face walls of problems they can't attempt.
                The score mostly reflects which questions happened to be on the sheet.</p>
           </div>
-          <div class="card card-accent">
+          <div class="card card-accent rise">
             <h3>A MathLens diagnostic</h3>
             <p>Spends every question where it's most informative — right at the frontier of what the
                student knows. Fifteen well-chosen questions pin down ability more precisely than a
@@ -123,9 +140,9 @@
       </div>
 
       <div class="section-block final-cta">
-        <h2 class="section-title">Ready when you are</h2>
-        <p class="final-cta-sub">One subject for now — pre-algebra through Algebra 1 — done properly.</p>
-        <button class="btn btn-primary btn-large" id="footer-start" type="button">Start the diagnostic</button>
+        <h2 class="section-title rise">Ready when you are</h2>
+        <p class="final-cta-sub rise">One subject for now — pre-algebra through Algebra 1 — done properly.</p>
+        <button class="btn btn-primary btn-large rise" id="footer-start" type="button">Start the diagnostic</button>
       </div>
     </section>
 
@@ -151,9 +168,9 @@
     <section class="view" id="view-analyzing">
       <div class="analyzing-shell">
         <svg class="analyzing-mark" viewBox="0 0 32 32" aria-hidden="true">
-          <rect width="32" height="32" rx="8" fill="var(--indigo)"/>
+          <rect width="32" height="32" rx="8" fill="var(--pine)"/>
           <circle cx="16" cy="16" r="8.5" fill="none" stroke="#fff" stroke-width="2"/>
-          <circle cx="16" cy="16" r="3" fill="var(--amber)"/>
+          <circle cx="16" cy="16" r="3" fill="var(--clay)"/>
         </svg>
         <h2>Building the report…</h2>
         <p id="analyzing-note">Estimating ability from the full answer pattern</p>
@@ -183,6 +200,11 @@
             </div>
             <p class="scale-note" id="scale-note"></p>
           </div>
+        </div>
+
+        <div class="save-hint reveal" id="save-hint" hidden>
+          Want to keep this result and track progress over time?
+          <a class="link-btn" id="save-hint-login">Create a free account</a> — future diagnostics will be saved to your profile.
         </div>
 
         <div class="report-grid">
@@ -216,6 +238,96 @@
         </div>
       </div>
     </section>
+
+    <!-- =============================== AUTH ================================ -->
+    <section class="view" id="view-auth">
+      <div class="auth-shell">
+        <div class="auth-card">
+
+          <!-- login / signup -->
+          <div id="auth-main">
+            <h1 class="auth-title" id="auth-title">Welcome back</h1>
+            <p class="auth-sub" id="auth-sub">Log in to save results and track progress over time.</p>
+
+            <div class="auth-tabs" role="tablist">
+              <button class="auth-tab active" id="tab-login" type="button" role="tab">Log in</button>
+              <button class="auth-tab" id="tab-signup" type="button" role="tab">Create account</button>
+            </div>
+
+            <div class="form-error" id="auth-error" hidden></div>
+            <div class="form-ok" id="auth-ok" hidden></div>
+
+            <form id="form-login">
+              <div class="field">
+                <label for="login-email">Email</label>
+                <input class="input" id="login-email" type="email" autocomplete="email" required />
+              </div>
+              <div class="field">
+                <label for="login-password">Password</label>
+                <input class="input" id="login-password" type="password" autocomplete="current-password" required />
+              </div>
+              <button class="btn btn-primary auth-submit" id="login-submit" type="submit">Log in</button>
+              <p class="auth-foot"><button class="link-btn" id="show-forgot" type="button">Forgot your password?</button></p>
+            </form>
+
+            <form id="form-signup" hidden>
+              <div class="field">
+                <label for="signup-name">Name</label>
+                <input class="input" id="signup-name" type="text" autocomplete="name" maxlength="80" required />
+              </div>
+              <div class="field">
+                <label for="signup-email">Email</label>
+                <input class="input" id="signup-email" type="email" autocomplete="email" required />
+              </div>
+              <div class="field">
+                <label for="signup-password">Password</label>
+                <input class="input" id="signup-password" type="password" autocomplete="new-password" minlength="8" required />
+                <span class="field-note">At least 8 characters.</span>
+              </div>
+              <button class="btn btn-primary auth-submit" id="signup-submit" type="submit">Create account</button>
+              <p class="auth-foot">Accounts start as students. Teachers &amp; tutors: create an account and we'll add classroom tools soon.</p>
+            </form>
+
+            <div id="google-area" hidden>
+              <div class="auth-divider">or</div>
+              <div class="google-slot" id="google-slot"></div>
+            </div>
+          </div>
+
+          <!-- forgot password -->
+          <div id="auth-forgot" hidden>
+            <h1 class="auth-title">Reset your password</h1>
+            <p class="auth-sub">Enter your email and we'll send a reset link.</p>
+            <div class="form-error" id="forgot-error" hidden></div>
+            <div class="form-ok" id="forgot-ok" hidden></div>
+            <form id="form-forgot">
+              <div class="field">
+                <label for="forgot-email">Email</label>
+                <input class="input" id="forgot-email" type="email" autocomplete="email" required />
+              </div>
+              <button class="btn btn-primary auth-submit" type="submit">Send reset link</button>
+              <p class="auth-foot"><button class="link-btn" id="back-to-login" type="button">Back to log in</button></p>
+            </form>
+          </div>
+
+          <!-- reset password (via ?reset=TOKEN) -->
+          <div id="auth-reset" hidden>
+            <h1 class="auth-title">Choose a new password</h1>
+            <p class="auth-sub">Enter a new password for your account.</p>
+            <div class="form-error" id="reset-error" hidden></div>
+            <form id="form-reset">
+              <div class="field">
+                <label for="reset-password">New password</label>
+                <input class="input" id="reset-password" type="password" autocomplete="new-password" minlength="8" required />
+                <span class="field-note">At least 8 characters.</span>
+              </div>
+              <button class="btn btn-primary auth-submit" type="submit">Set new password</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -227,6 +339,6 @@
   <div class="toast" id="toast" role="alert" hidden></div>
 
   <script src="vendor/chart.umd.min.js"></script>
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
