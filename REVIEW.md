@@ -40,7 +40,22 @@ The 1–10 difficulty per item is an authored guess, mapped linearly to logits i
       `TOPIC_PRIOR_SD`) are sensible defaults, not validated cutoffs — revisit with data.
 - [ ] Stopping rule (`SE_STOP = 0.48`, 15–20 questions) — revisit after calibration.
 
-## 5. Engineering before scale
+## 5. Auth hardening before scale
+
+- [ ] Introduce Alembic migrations (tables are currently created with
+      `create_all`; fine until the schema needs to evolve in place).
+- [ ] Rate limiting is in-memory per process — move to the database or Redis
+      when running more than one instance.
+- [ ] Verify a sending domain in Resend and set `MAIL_FROM` (the default
+      `onboarding@resend.dev` sender only delivers to the account owner).
+- [ ] Email verification is non-blocking by design; decide whether any
+      features should require a verified email.
+- [ ] Add a "set password" flow for Google-only accounts.
+- [ ] Teacher role: `teacher_students` table exists but has no endpoints or
+      UI yet; teacher accounts currently sign up as students and need an
+      admin to upgrade them (build the admin dashboard first).
+
+## 6. Engineering before scale
 
 - [ ] Sessions are in process memory (`app/adaptive.py: SessionStore`). Fine for one
       free-tier instance; move to Redis/Postgres before multiple workers or restarts

@@ -13,6 +13,7 @@
     quiz: $("view-quiz"),
     analyzing: $("view-analyzing"),
     report: $("view-report"),
+    auth: $("view-auth"),
   };
   const progressTrack = $("progress-track");
   const progressFill = $("progress-fill");
@@ -41,10 +42,13 @@
   const wait = (ms) => new Promise((r) => setTimeout(r, reducedMotion ? 0 : ms));
 
   // ---- helpers ------------------------------------------------------------
+  let currentView = "landing";
+
   function showView(name) {
+    currentView = name;
     Object.entries(views).forEach(([key, el]) => el.classList.toggle("active", key === name));
     progressTrack.hidden = name !== "quiz";
-    headerStart.hidden = name !== "landing";
+    updateHeader();
     window.scrollTo({ top: 0, behavior: "instant" in window ? "instant" : "auto" });
   }
 
@@ -128,6 +132,7 @@
       btn.type = "button";
       btn.className = "choice";
       btn.dataset.index = String(i);
+      btn.style.setProperty("--i", String(i));
 
       const letter = document.createElement("span");
       letter.className = "choice-letter";
@@ -461,6 +466,7 @@
     });
 
     $("report-disclaimer").textContent = report.disclaimer;
+    $("save-hint").hidden = !!currentUser;
 
     // Switch view and render everything SYNCHRONOUSLY. Animations are a
     // bonus layered on top — never a prerequisite for seeing the content
@@ -522,10 +528,10 @@
           label: "Level",
           data: assessed.map((t) => t.level),
           fill: true,
-          backgroundColor: "rgba(79, 70, 229, 0.14)",
-          borderColor: "#4F46E5",
+          backgroundColor: "rgba(30, 92, 65, 0.14)",
+          borderColor: "#1E5C41",
           borderWidth: 2,
-          pointBackgroundColor: assessed.map((t) => (t.verdict === "focus" ? "#F59E0B" : "#4F46E5")),
+          pointBackgroundColor: assessed.map((t) => (t.verdict === "focus" ? "#C4622D" : "#1E5C41")),
           pointRadius: 4,
           pointHoverRadius: 6,
         }],
@@ -539,11 +545,11 @@
             min: 0,
             max: 10,
             ticks: { stepSize: 2, display: false },
-            grid: { color: "rgba(28, 32, 51, 0.08)" },
-            angleLines: { color: "rgba(28, 32, 51, 0.08)" },
+            grid: { color: "rgba(30, 43, 38, 0.08)" },
+            angleLines: { color: "rgba(30, 43, 38, 0.08)" },
             pointLabels: {
-              font: { family: "Inter", size: 11, weight: "600" },
-              color: "#5A5F76",
+              font: { family: "Instrument Sans", size: 11, weight: "600" },
+              color: "#5A6A61",
             },
           },
         },
@@ -559,6 +565,270 @@
     });
   }
 
+  // ==========================================================================
+  // Auth
+  // ==========================================================================
+  let currentUser = null;
+  let appConfig = { google_client_id: null, email_enabled: false };
+
+  function updateHeader() {
+    const inQuiz = currentView === "quiz" || currentView === "analyzing";
+    headerStart.hidden = inQuiz || currentView !== "landing";
+    $("header-login").hidden = !!currentUser || inQuiz || currentView === "auth";
+    $("account-wrap").hidden = !currentUser;
+    if (currentUser) {
+      const initials = (currentUser.name || currentUser.email || "?")
+        .split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
+      $("avatar-dot").textContent = initials;
+      $("chip-name").textContent = (currentUser.name || "").split(/\s+/)[0];
+      $("menu-name").textContent = currentUser.name || "";
+      $("menu-email").textContent = currentUser.email || "";
+      $("menu-role").textContent = currentUser.role || "student";
+    }
+    $("verify-banner").hidden = !(
+      currentUser && currentUser.has_password && !currentUser.email_verified && appConfig.email_enabled
+    );
+  }
+
+  const authError = (msg) => { const el = $("auth-error"); el.textContent = msg || ""; el.hidden = !msg; };
+  const authOk = (msg) => { const el = $("auth-ok"); el.textContent = msg || ""; el.hidden = !msg; };
+
+  function switchAuthTab(which) {
+    $("tab-login").classList.toggle("active", which === "login");
+    $("tab-signup").classList.toggle("active", which === "signup");
+    $("form-login").hidden = which !== "login";
+    $("form-signup").hidden = which !== "signup";
+    $("auth-title").textContent = which === "login" ? "Welcome back" : "Create your account";
+    $("auth-sub").textContent = which === "login"
+      ? "Log in to save results and track progress over time."
+      : "Free while in preview. Results from future diagnostics get saved to your profile.";
+    authError(null); authOk(null);
+  }
+
+  function showAuth(which = "login") {
+    $("auth-main").hidden = false;
+    $("auth-forgot").hidden = true;
+    $("auth-reset").hidden = true;
+    switchAuthTab(which);
+    showView("auth");
+  }
+
+  async function refreshMe() {
+    try {
+      const data = await api("/auth/me");
+      currentUser = data.user;
+    } catch {
+      currentUser = null;
+    }
+    updateHeader();
+  }
+
+  async function handleLogin(e) {
+    e.preventDefault();
+    authError(null);
+    const btn = $("login-submit");
+    btn.disabled = true;
+    try {
+      await api("/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: $("login-email").value.trim(), password: $("login-password").value }),
+      });
+      await refreshMe();
+      log("logged in as", currentUser && currentUser.email);
+      showToast(`Welcome back${currentUser && currentUser.name ? ", " + currentUser.name.split(/\s+/)[0] : ""}!`);
+      showView("landing");
+    } catch (err) {
+      authError(err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function handleSignup(e) {
+    e.preventDefault();
+    authError(null);
+    const btn = $("signup-submit");
+    btn.disabled = true;
+    try {
+      await api("/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: $("signup-name").value.trim(),
+          email: $("signup-email").value.trim(),
+          password: $("signup-password").value,
+        }),
+      });
+      await refreshMe();
+      log("signed up as", currentUser && currentUser.email);
+      showToast("Account created — welcome to MathLens!");
+      showView("landing");
+    } catch (err) {
+      authError(err.message);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  async function handleForgot(e) {
+    e.preventDefault();
+    const err = $("forgot-error"), ok = $("forgot-ok");
+    err.hidden = true; ok.hidden = true;
+    try {
+      await api("/auth/forgot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: $("forgot-email").value.trim() }),
+      });
+      ok.textContent = "If an account exists for that email, a reset link is on its way.";
+      ok.hidden = false;
+    } catch (e2) {
+      err.textContent = e2.message;
+      err.hidden = false;
+    }
+  }
+
+  async function handleReset(e) {
+    e.preventDefault();
+    const err = $("reset-error");
+    err.hidden = true;
+    const token = new URLSearchParams(location.search).get("reset");
+    try {
+      await api("/auth/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, password: $("reset-password").value }),
+      });
+      history.replaceState(null, "", location.pathname);
+      showAuth("login");
+      authOk("Password updated — log in with your new password.");
+    } catch (e2) {
+      err.textContent = e2.message;
+      err.hidden = false;
+    }
+  }
+
+  async function handleLogout() {
+    try { await api("/auth/logout", { method: "POST" }); } catch { /* session may already be gone */ }
+    currentUser = null;
+    $("account-menu").hidden = true;
+    updateHeader();
+    showToast("Logged out.");
+    showView("landing");
+  }
+
+  function initGoogle() {
+    if (!appConfig.google_client_id) return;
+    const s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.async = true;
+    s.onload = () => {
+      if (!window.google || !google.accounts) return;
+      google.accounts.id.initialize({
+        client_id: appConfig.google_client_id,
+        callback: async (resp) => {
+          try {
+            await api("/auth/google", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ credential: resp.credential }),
+            });
+            await refreshMe();
+            showToast(`Welcome${currentUser && currentUser.name ? ", " + currentUser.name.split(/\s+/)[0] : ""}!`);
+            showView("landing");
+          } catch (err) {
+            authError(err.message);
+          }
+        },
+      });
+      google.accounts.id.renderButton($("google-slot"), { theme: "outline", size: "large", width: 320, text: "continue_with" });
+      $("google-area").hidden = false;
+    };
+    document.head.appendChild(s);
+  }
+
+  function initAuth() {
+    $("tab-login").addEventListener("click", () => switchAuthTab("login"));
+    $("tab-signup").addEventListener("click", () => switchAuthTab("signup"));
+    $("form-login").addEventListener("submit", handleLogin);
+    $("form-signup").addEventListener("submit", handleSignup);
+    $("form-forgot").addEventListener("submit", handleForgot);
+    $("form-reset").addEventListener("submit", handleReset);
+    $("header-login").addEventListener("click", () => showAuth("login"));
+    $("save-hint-login").addEventListener("click", () => showAuth("signup"));
+    $("menu-logout").addEventListener("click", handleLogout);
+    $("menu-retake").addEventListener("click", () => { $("account-menu").hidden = true; startDiagnostic(); });
+    $("show-forgot").addEventListener("click", () => {
+      $("auth-main").hidden = true; $("auth-forgot").hidden = false;
+    });
+    $("back-to-login").addEventListener("click", () => {
+      $("auth-forgot").hidden = true; $("auth-main").hidden = false; switchAuthTab("login");
+    });
+    $("resend-verify").addEventListener("click", async () => {
+      try { await api("/auth/resend-verification", { method: "POST" }); showToast("Verification email sent."); }
+      catch (err) { showToast(err.message); }
+    });
+
+    // account menu open/close
+    const chip = $("account-chip");
+    const menu = $("account-menu");
+    chip.addEventListener("click", (e) => {
+      e.stopPropagation();
+      menu.hidden = !menu.hidden;
+      chip.setAttribute("aria-expanded", String(!menu.hidden));
+    });
+    document.addEventListener("click", (e) => {
+      if (!menu.hidden && !menu.contains(e.target) && e.target !== chip) menu.hidden = true;
+    });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") menu.hidden = true; });
+  }
+
+  async function bootstrap() {
+    try { appConfig = await api("/config"); } catch { /* defaults */ }
+    await refreshMe();
+    initGoogle();
+    // Password-reset deep link: /?reset=TOKEN
+    if (new URLSearchParams(location.search).get("reset")) {
+      $("auth-main").hidden = true;
+      $("auth-forgot").hidden = true;
+      $("auth-reset").hidden = false;
+      showView("auth");
+    }
+    // Email-verification deep link: /?verify=TOKEN
+    const verifyToken = new URLSearchParams(location.search).get("verify");
+    if (verifyToken) {
+      try {
+        await api("/auth/verify-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: verifyToken }),
+        });
+        showToast("Email verified — thanks!");
+        await refreshMe();
+      } catch (err) {
+        showToast(err.message);
+      }
+      history.replaceState(null, "", location.pathname);
+    }
+  }
+
+  // ---- landing scroll reveals (safe: visible by default) -------------------
+  function initRise() {
+    const els = [...document.querySelectorAll(".rise")];
+    if (reducedMotion || !("IntersectionObserver" in window) || els.length === 0) return;
+    const below = els.filter((el) => el.getBoundingClientRect().top > window.innerHeight * 0.92);
+    below.forEach((el) => el.classList.add("pre"));
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((en) => {
+        if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, { threshold: 0.12 });
+    below.forEach((el) => io.observe(el));
+    // Safety: never leave anything hidden.
+    setTimeout(() => below.forEach((el) => { el.classList.add("in"); }), 5000);
+  }
+
   // ---- wiring -------------------------------------------------------------
   ["hero-start", "footer-start", "header-start"].forEach((id) => {
     $(id).addEventListener("click", startDiagnostic);
@@ -570,4 +840,12 @@
     e.preventDefault();
     if (!views.quiz.classList.contains("active")) showView("landing");
   });
+
+  window.addEventListener("scroll", () => {
+    $("site-header").classList.toggle("scrolled", window.scrollY > 8);
+  }, { passive: true });
+
+  initAuth();
+  initRise();
+  bootstrap();
 })();

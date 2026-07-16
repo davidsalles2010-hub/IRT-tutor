@@ -104,6 +104,29 @@ tests/
 The frontend is deliberately dependency-free (vanilla JS + Chart.js, vendored) and is
 served by the same FastAPI process, so one process is a complete deployment.
 
+## Accounts & roles
+
+MathLens has optional accounts (email/password and Google sign-in). The diagnostic stays
+open to anonymous visitors; logged-in users get each completed diagnostic saved to their
+profile (`GET /api/me/results`), which is the foundation for progress-over-time views.
+
+Sessions are server-side rows referenced by an HttpOnly cookie (30 days, revocable),
+passwords are argon2id hashes, and password-reset/email-verification links are delivered
+via Resend. Every user has a `role` — `student` (default), `teacher`, or `admin` — and a
+`teacher_students` link table already exists so teacher↔student features can be added
+without a schema rebuild. Emails listed in the `ADMIN_EMAILS` env var become admins.
+
+Configuration (all optional in local dev — SQLite + logged emails are the fallback):
+
+| env var | purpose |
+| --- | --- |
+| `DATABASE_URL` | Postgres connection string (Neon in production) |
+| `SESSION_SECRET` | reserved for future signed tokens |
+| `APP_ORIGIN` | canonical origin, used in email links + CSRF check |
+| `RESEND_API_KEY` | enables real reset/verification emails |
+| `GOOGLE_CLIENT_ID` | enables the Google sign-in button |
+| `ADMIN_EMAILS` | comma-separated admin allow-list |
+
 ## Run it locally
 
 ```bash

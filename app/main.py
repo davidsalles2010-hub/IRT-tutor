@@ -14,16 +14,23 @@ client during a session — only in the post-test report.
 
 from __future__ import annotations
 
+import json
+import os
 from pathlib import Path
 from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+from sqlalchemy import select
+from sqlalchemy.orm import Session as DbSession
 
-from . import adaptive, report
+from . import adaptive, emails, report
 from .adaptive import Session, SessionStore
+from .auth import get_current_user, require_user, router as auth_router
 from .bank import load_bank
+from .db import get_db, init_db
+from .models import DiagnosticResult, User
 
 app = FastAPI(title="MathLens API", version="0.1.0")
 
@@ -44,6 +51,22 @@ BANK = load_bank()
 STORE = SessionStore()
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+
+app.include_router(auth_router)
+
+
+@app.on_event("startup")
+def _startup() -> None:
+    init_db()
+
+
+@app.get("/api/config")
+def config() -> dict[str, Any]:
+    """Non-secret configuration the frontend needs."""
+    return {
+        "google_client_id": os.environ.get("GOOGLE_CLIENT_ID"),
+        "email_enabled": emails.email_enabled(),
+    }
 
 
 class AnswerBody(BaseModel):
@@ -152,11 +175,66 @@ def submit_answer(session_id: str, body: AnswerBody) -> dict[str, Any]:
 
 
 @app.get("/api/sessions/{session_id}/report")
-def get_report(session_id: str) -> dict[str, Any]:
+def get_report(
+    session_id: str,
+    user: User | None = Depends(get_current_user),
+    db: DbSession = Depends(get_db),
+) -> dict[str, Any]:
     session = _get_session_or_404(session_id)
     if not session.is_done():
         raise HTTPException(status_code=409, detail="Diagnostic is not finished yet")
-    return report.build_report(session)
+    result = report.build_report(session)
+
+    # Logged-in users get the result saved to their profile (idempotent per
+    # quiz session) — the raw material for per-user progress history.
+    if user is not None:
+        existing = db.scalar(select(DiagnosticResult).where(DiagnosticResult.quiz_session_id == session.id))
+        if existing is None:
+            db.add(DiagnosticResult(
+                user_id=user.id,
+                quiz_session_id=session.id,
+                theta=result["ability"]["theta"],
+                se=result["ability"]["se"],
+                level=result["ability"]["level"],
+                band=result["ability"]["band"],
+                n_questions=result["n_questions"],
+                n_correct=result["n_correct"],
+                topics_json=json.dumps([
+                    {"topic": t["topic"], "level": t["level"], "verdict": t["verdict"], "asked": t["asked"], "correct": t["correct"]}
+                    for t in result["topics"] if t["asked"] > 0
+                ]),
+            ))
+            db.commit()
+        result["saved_to_profile"] = True
+
+    return result
+
+
+@app.get("/api/me/results")
+def my_results(user: User = Depends(require_user), db: DbSession = Depends(get_db)) -> dict[str, Any]:
+    """Per-user diagnostic history (newest first) — feeds future progress UI."""
+    rows = db.scalars(
+        select(DiagnosticResult)
+        .where(DiagnosticResult.user_id == user.id)
+        .order_by(DiagnosticResult.created_at.desc())
+        .limit(100)
+    ).all()
+    return {
+        "results": [
+            {
+                "id": r.id,
+                "level": r.level,
+                "band": r.band,
+                "theta": r.theta,
+                "se": r.se,
+                "n_questions": r.n_questions,
+                "n_correct": r.n_correct,
+                "topics": json.loads(r.topics_json),
+                "created_at": r.created_at.isoformat() + "Z",
+            }
+            for r in rows
+        ]
+    }
 
 
 # Static frontend — mounted last so /api routes take precedence.
