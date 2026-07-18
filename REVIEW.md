@@ -51,6 +51,12 @@ The 1–10 difficulty per item is an authored guess, mapped linearly to logits i
 - [ ] Email verification is non-blocking by design; decide whether any
       features should require a verified email.
 - [ ] Add a "set password" flow for Google-only accounts.
+- [ ] The Google OAuth app is published to production with only the
+      non-sensitive email/profile/openid scopes (no Google verification
+      required). If sensitive scopes are ever added, submit for verification.
+- [ ] Resend currently sends from onboarding@resend.dev, which only delivers
+      to the Resend account owner's own address — verify a domain and set
+      MAIL_FROM before password resets can reach other users.
 - [ ] Teacher role: `teacher_students` table exists but has no endpoints or
       UI yet; teacher accounts currently sign up as students and need an
       admin to upgrade them (build the admin dashboard first).
