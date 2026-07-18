@@ -194,6 +194,29 @@ def test_google_unconfigured_returns_clear_error():
     assert "configured" in r.json()["detail"]
 
 
+def test_google_bad_token_never_500(monkeypatch):
+    """A bad Google credential must yield a clean JSON error — never an
+    unhandled 500 (which the frontend surfaces as 'something went wrong').
+    Depending on network reachability of Google's cert endpoint this is either
+    401 (token rejected) or 502 (couldn't reach Google); both are acceptable,
+    a 500 is not. This is the regression guard for the missing-`requests`
+    dependency bug that broke Google sign-in in production."""
+    monkeypatch.setenv("GOOGLE_CLIENT_ID", "test-client-id.apps.googleusercontent.com")
+    client = fresh_client()
+    r = client.post("/api/auth/google", json={"credential": "not-a-real-jwt-token-value"})
+    assert r.status_code in (401, 502), r.text
+    assert r.headers["content-type"].startswith("application/json")
+    assert r.json()["detail"]
+
+
+def test_google_libs_importable():
+    """The Google verification path's dependencies must be installed
+    (google-auth needs the `requests` transport, which isn't a default dep)."""
+    from google.auth.transport import requests as google_requests  # noqa: F401
+    from google.oauth2 import id_token  # noqa: F401
+    import requests  # noqa: F401
+
+
 # ---------------------------------------------------------------------------
 # Results persistence
 # ---------------------------------------------------------------------------

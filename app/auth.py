@@ -305,17 +305,41 @@ def resend_verification(request: Request, db: DbSession = Depends(get_db), user:
 # Google sign-in (ID token flow)
 # ---------------------------------------------------------------------------
 
-def verify_google_token(credential: str) -> dict:
-    """Verify a Google ID token; separated for testability."""
-    from google.auth.transport import requests as google_requests
-    from google.oauth2 import id_token
+import logging
 
+log = logging.getLogger("mathlens.auth")
+
+
+def verify_google_token(credential: str) -> dict:
+    """Verify a Google ID token; separated for testability.
+
+    Any failure is mapped to a clean HTTP error — this endpoint must never
+    return a 500 (an unhandled 500 is what the frontend surfaces as the
+    unhelpful "something went wrong"). Unexpected errors are logged so they
+    can be diagnosed from the server logs.
+    """
     client_id = os.environ.get("GOOGLE_CLIENT_ID")
     if not client_id:
         raise HTTPException(status_code=400, detail="Google sign-in isn't configured on this deployment.")
+
+    try:
+        from google.auth.transport import requests as google_requests
+        from google.oauth2 import id_token
+    except ImportError as exc:  # pragma: no cover - dependency/config issue
+        log.error("Google auth libraries unavailable: %s", exc)
+        raise HTTPException(status_code=503, detail="Google sign-in is temporarily unavailable.")
+
     try:
         claims = id_token.verify_oauth2_token(credential, google_requests.Request(), client_id)
-    except ValueError:
+    except ValueError as exc:
+        # Malformed/expired/wrong-audience token — the normal "bad token" path.
+        log.info("Google token rejected: %s", exc)
+        raise HTTPException(status_code=401, detail="Google sign-in failed — please try again.")
+    except Exception as exc:  # network hiccup fetching Google certs, etc.
+        log.exception("Unexpected error verifying Google token: %s", exc)
+        raise HTTPException(status_code=502, detail="Couldn't reach Google to verify sign-in — please try again.")
+
+    if not isinstance(claims, dict):
         raise HTTPException(status_code=401, detail="Google sign-in failed — please try again.")
     return claims
 
